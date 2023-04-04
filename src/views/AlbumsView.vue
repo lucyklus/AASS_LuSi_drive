@@ -16,7 +16,7 @@ onMounted(async () => {
   <v-container>
     <v-row>
       <v-col cols="2" v-for="album in albums" :key="album.id">
-        <v-card @click="router.push('albums/' + album.id)">
+        <v-card prepend-icon="mdi-folder" @click="router.push('albums/' + album.id)">
           <v-card-title>{{ album.name }}</v-card-title>
         </v-card>
       </v-col>
@@ -28,7 +28,7 @@ onMounted(async () => {
         v-bind="props"
         id="add-album"
         density="compact"
-        icon="mdi-plus"
+        icon="mdi-folder-plus"
         size="x-large"
         color="primary"
       />

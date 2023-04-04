@@ -79,11 +79,9 @@ const savePhoto = async () => {
     </v-container>
   </v-card>
 
-  <v-snackbar v-model="snackbar">
-    Changes saved
-    <template v-slot:actions>
-      <v-btn color="pink" variant="text" @click="snackbar = false"> Close </v-btn>
-    </template>
+  <v-snackbar v-model="snackbar" :timeout="3000" color="green" rounded="pill">
+    <p class="text-center">Changes saved</p>
+    <template v-slot:actions />
   </v-snackbar>
 </template>
 <style>

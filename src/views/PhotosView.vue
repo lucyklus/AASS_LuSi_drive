@@ -28,7 +28,7 @@ onMounted(async () => {
         v-bind="props"
         id="add-photo"
         density="compact"
-        icon="mdi-plus"
+        icon="mdi-file-image-plus"
         size="x-large"
         color="primary"
       />
