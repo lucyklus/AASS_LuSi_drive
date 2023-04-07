@@ -2,16 +2,27 @@
 import MiniPhoto from '@/components/photos/MiniPhoto.vue'
 import { usePhotosStore } from '@/stores/photos'
 import type { Photo } from '@/types'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const photosStore = usePhotosStore()
 
 const photos = computed<Photo[]>(() => photosStore.photos)
+const cloudinaryName = 'lusidrive'
+const cloudinaryPreset = 'lusi_drive'
 
 onMounted(async () => {
   await photosStore.loadAlbums()
   await photosStore.loadPhotos()
 })
+
+const uploader = ref<HTMLInputElement>()
+
+const selectedFile = ref<File | null>(null)
+
+const onFileSelected = (payload: Event) => {
+  selectedFile.value = (payload.target as HTMLInputElement).files?.item(0) ?? null
+  // TODO: upload to cloudinary and save to db
+}
 </script>
 
 <template>
@@ -31,6 +42,14 @@ onMounted(async () => {
         icon="mdi-file-image-plus"
         size="x-large"
         color="primary"
+        @click="uploader?.click()"
+      />
+      <input
+        ref="uploader"
+        style="display: none"
+        type="file"
+        accept="image/*"
+        @change="onFileSelected"
       />
     </template>
   </v-tooltip>
