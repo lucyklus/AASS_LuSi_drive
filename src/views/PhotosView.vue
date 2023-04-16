@@ -7,8 +7,6 @@ import { computed, onMounted, ref } from 'vue'
 const photosStore = usePhotosStore()
 
 const photos = computed<Photo[]>(() => photosStore.photos)
-const cloudinaryName = 'lusidrive'
-const cloudinaryPreset = 'lusi_drive'
 
 onMounted(async () => {
   await photosStore.loadAlbums()
@@ -17,19 +15,29 @@ onMounted(async () => {
 
 const uploader = ref<HTMLInputElement>()
 
-const selectedFile = ref<File | null>(null)
+const isUploading = ref<boolean>(false)
 
-const onFileSelected = (payload: Event) => {
-  selectedFile.value = (payload.target as HTMLInputElement).files?.item(0) ?? null
-  // TODO: upload to cloudinary and save to db
+const onFileSelected = async (payload: Event) => {
+  const target = payload.target as HTMLInputElement
+  const selectedFile = target.files?.item(0) ?? null
+  if (!selectedFile) return
+  isUploading.value = true
+  await photosStore.uploadPhoto(selectedFile)
+  target.value = ''
+  isUploading.value = false
 }
 </script>
 
 <template>
   <v-container>
     <v-row>
-      <v-col cols="2" v-for="photo in photos" :key="photo.title">
-        <mini-photo :id="photo.id" :src="photo.src" :title="photo.title" :albums="photo.albums" />
+      <v-col cols="2" v-for="photo in photos" :key="photo.id">
+        <mini-photo
+          :id="photo.id"
+          :src="photo.cloudinaryLink"
+          :title="photo.name"
+          :albums="photo.albums"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -38,6 +46,7 @@ const onFileSelected = (payload: Event) => {
       <v-btn
         v-bind="props"
         id="add-photo"
+        :loading="isUploading"
         density="compact"
         icon="mdi-file-image-plus"
         size="x-large"

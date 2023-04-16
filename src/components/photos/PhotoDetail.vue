@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { defineProps, ref, onMounted, computed } from 'vue'
 import { usePhotosStore } from '@/stores/photos'
+import { useRoute } from 'vue-router'
 const photosStore = usePhotosStore()
+const route = useRoute()
 
 const props = defineProps<{
   id: number
@@ -20,29 +22,36 @@ const snackbar = ref(false)
 
 const storedAlbums = computed(() => photosStore.albums)
 
+const isChangingAlbum = ref(false)
+
+const canAddAlbum = computed(() => {
+  return _albums.value.length < storedAlbums.value.length && !isChangingAlbum.value
+})
+
 onMounted(() => {
   _albums.value = props.albums
   _title.value = props.title
 })
-
-const addAlbum = () => {
-  // TODO
-  console.log('add album')
-  isSavable.value = true
-}
 
 const removeAlbum = (id: number) => {
   _albums.value = _albums.value.filter((album) => album !== id)
   isSavable.value = true
 }
 
+const addAlbums = (id: number) => {
+  _albums.value = [..._albums.value, id]
+  isChangingAlbum.value = false
+  isSavable.value = true
+}
+
 const savePhoto = async () => {
-  await photosStore.savePhoto({
-    id: props.id,
-    src: props.src,
-    title: _title.value,
-    albums: _albums.value
-  })
+  await photosStore.editPhoto(props.id, _title.value, _albums.value)
+  const albumId = Number(route?.params['id'])
+  if (albumId) {
+    await photosStore.loadPhotos(Number(albumId) ?? null)
+  } else {
+    await photosStore.loadPhotos()
+  }
   snackbar.value = true
 }
 </script>
@@ -51,7 +60,7 @@ const savePhoto = async () => {
     <v-container>
       <v-row>
         <v-col cols="6">
-          <v-img :src="src" />
+          <v-img :src="src" style="height: fit-content" />
         </v-col>
         <v-col cols="6">
           <v-card variant="tonal" min-height="100%">
@@ -64,10 +73,21 @@ const savePhoto = async () => {
                 @click:close="removeAlbum(albumId)"
               >
                 {{
-                  storedAlbums.find((album) => album.id === albumId)?.name ?? 'Cannot find album'
+                  storedAlbums.find((album) => album.id === albumId)?.name ??
+                  'Cannot find album with ID: ' + albumId
                 }}
               </v-chip>
-              <v-chip @click="addAlbum">+</v-chip>
+              <v-chip @click="isChangingAlbum = true" v-if="canAddAlbum">+</v-chip>
+              <v-select
+                v-else-if="isChangingAlbum"
+                chips
+                label="Select"
+                :items="storedAlbums.filter((album) => !_albums.includes(album.id))"
+                item-title="name"
+                item-value="id"
+                variant="solo"
+                @update:model-value="addAlbums"
+              ></v-select>
             </span>
             <v-card-actions>
               <v-btn color="primary" text :disabled="!isSavable" @click="savePhoto">Save</v-btn>
