@@ -14,8 +14,8 @@ const props = defineProps<{
 
 defineEmits(['close'])
 
-const _albums = ref<number[]>([])
-const _title = ref('')
+const albums = ref<number[]>([])
+const title = ref('')
 const isSavable = ref(false)
 
 const snackbar = ref(false)
@@ -25,27 +25,27 @@ const storedAlbums = computed(() => photosStore.albums)
 const isChangingAlbum = ref(false)
 
 const canAddAlbum = computed(() => {
-  return _albums.value.length < storedAlbums.value.length && !isChangingAlbum.value
+  return albums.value.length < storedAlbums.value.length && !isChangingAlbum.value
 })
 
 onMounted(() => {
-  _albums.value = props.albums
-  _title.value = props.title
+  albums.value = props.albums
+  title.value = props.title
 })
 
 const removeAlbum = (id: number) => {
-  _albums.value = _albums.value.filter((album) => album !== id)
+  albums.value = albums.value.filter((album) => album !== id)
   isSavable.value = true
 }
 
 const addAlbums = (id: number) => {
-  _albums.value = [..._albums.value, id]
+  albums.value = [...albums.value, id]
   isChangingAlbum.value = false
   isSavable.value = true
 }
 
 const savePhoto = async () => {
-  await photosStore.editPhoto(props.id, _title.value, _albums.value)
+  await photosStore.editPhoto(props.id, title.value, albums.value)
   const albumId = Number(route?.params['id'])
   if (albumId) {
     await photosStore.loadPhotos(Number(albumId) ?? null)
@@ -64,10 +64,19 @@ const savePhoto = async () => {
         </v-col>
         <v-col cols="6">
           <v-card variant="tonal" min-height="100%">
-            <v-card-title>{{ _title }}</v-card-title>
+            <span class="title">
+              <v-text-field
+                v-model="title"
+                label="Title"
+                :rules="[() => !!title || 'Title is required']"
+                clearable
+                single-line
+                @update:model-value="isSavable = true"
+              ></v-text-field>
+            </span>
             <span class="albums">
               <v-chip
-                v-for="albumId in _albums"
+                v-for="albumId in albums"
                 :key="albumId"
                 closable
                 @click:close="removeAlbum(albumId)"
@@ -82,7 +91,7 @@ const savePhoto = async () => {
                 v-else-if="isChangingAlbum"
                 chips
                 label="Select"
-                :items="storedAlbums.filter((album) => !_albums.includes(album.id))"
+                :items="storedAlbums.filter((album) => !albums.includes(album.id))"
                 item-title="name"
                 item-value="id"
                 variant="solo"
