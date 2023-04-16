@@ -33,7 +33,7 @@ onMounted(async () => {
 })
 </script>
 <template>
-  <h2 style="margin: 50px">Current album is: {{ currentAlbum?.name ?? 'Unknown album' }}</h2>
+  <h2 style="margin: 30px">{{ currentAlbum?.name ?? 'Unknown album' }}</h2>
   <v-container v-if="!isLoading">
     <v-row>
       <v-col cols="2" v-for="photo in photos" :key="photo.id">

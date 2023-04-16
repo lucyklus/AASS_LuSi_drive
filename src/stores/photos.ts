@@ -39,6 +39,23 @@ export const usePhotosStore = defineStore('photos', () => {
     }
   }
 
+  const addAlbum = async (name: string) => {
+    try {
+      const response = await fetch('http://localhost:3030/album', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name
+        })
+      })
+      const data = await response.json()
+      console.log(data)
+    } catch (err) {
+      console.error(err)
+    }
+    await loadAlbums()
+  }
+
   const uploadPhoto = async (selectedFile: File) => {
     const formData = new FormData()
     formData.append('upload_preset', 'lusi_drive')
@@ -86,5 +103,5 @@ export const usePhotosStore = defineStore('photos', () => {
     }
   }
 
-  return { photos, loadPhotos, editPhoto, uploadPhoto, loadAlbums, albums }
+  return { photos, loadPhotos, editPhoto, uploadPhoto, loadAlbums, addAlbum, albums }
 })
