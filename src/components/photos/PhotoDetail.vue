@@ -56,11 +56,11 @@ const savePhoto = async () => {
 }
 </script>
 <template>
-  <v-card style="margin: 40px">
+  <v-card style="margin: 40px; max-height: 700px">
     <v-container>
       <v-row>
         <v-col cols="6">
-          <v-img :src="src" style="height: fit-content" />
+          <v-img max-height="650px" cover :src="src" />
         </v-col>
         <v-col cols="6">
           <v-card variant="tonal" min-height="100%">
