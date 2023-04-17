@@ -103,5 +103,62 @@ export const usePhotosStore = defineStore('photos', () => {
     }
   }
 
-  return { photos, loadPhotos, editPhoto, uploadPhoto, loadAlbums, addAlbum, albums }
+  const editAlbum = async (id: number, name: string) => {
+    try {
+      const response = await fetch(`http://localhost:3030/album/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name
+        })
+      })
+      const data = await response.json()
+      console.log(data)
+    } catch (err) {
+      console.error(err)
+    }
+    await loadAlbums()
+  }
+
+  const deletePhoto = async (id: number) => {
+    console.log('fetching delete')
+    try {
+      const response = await fetch(`http://localhost:3030/photo/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      const data = await response.json()
+      console.log(data)
+    } catch (err) {
+      console.error(err)
+    }
+    await loadPhotos()
+  }
+  const deleteAlbum = async (id: number) => {
+    console.log('fetching delete')
+    try {
+      const response = await fetch(`http://localhost:3030/album/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      const data = await response.json()
+      console.log(data)
+    } catch (err) {
+      console.error(err)
+    }
+    await loadAlbums()
+  }
+
+  return {
+    photos,
+    loadPhotos,
+    editPhoto,
+    uploadPhoto,
+    deletePhoto,
+    loadAlbums,
+    addAlbum,
+    albums,
+    deleteAlbum,
+    editAlbum
+  }
 })

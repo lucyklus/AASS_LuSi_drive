@@ -101,6 +101,12 @@ const savePhoto = async () => {
             <v-card-actions>
               <v-btn color="primary" text :disabled="!isSavable" @click="savePhoto">Save</v-btn>
               <v-btn color="primary" text @click="$emit('close')">Close</v-btn>
+              <v-btn
+                icon="mdi-delete"
+                color="error"
+                text
+                @click="photosStore.deletePhoto(id), $emit('close')"
+              />
             </v-card-actions>
           </v-card>
         </v-col>

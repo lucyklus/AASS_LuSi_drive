@@ -31,6 +31,14 @@ onMounted(async () => {
     <v-row>
       <v-col cols="2" v-for="album in albums" :key="album.id">
         <v-card prepend-icon="mdi-folder" @click="router.push('albums/' + album.id)">
+          <template #append>
+            <v-btn
+              icon="mdi-delete"
+              density="compact"
+              color="red"
+              @click.stop="photosStore.deleteAlbum(album.id)"
+            />
+          </template>
           <v-card-title>{{ album.name }}</v-card-title>
         </v-card>
       </v-col>
