@@ -7,22 +7,22 @@ export const usePhotosStore = defineStore('photos', () => {
 
   const albums = ref<Album[]>([])
 
+  const setPhotos = (newPhotos: Photo[]) => {
+    console.log('setPhotos', newPhotos)
+    photos.value = newPhotos
+  }
+
+  const setAlbums = (newAlbums: Album[]) => {
+    console.log('setAlbums', newAlbums)
+    albums.value = newAlbums
+  }
+
   const loadPhotos = async (album?: number | null) => {
     try {
       if (!album && album !== 0) {
-        const response = await fetch('http://localhost:3030/photos')
-        const data = await response.json()
-        data.forEach((photo: any) => {
-          photo.albums = photo.albums.map((album: Album) => album.id)
-        })
-        photos.value = data
+        await fetch('http://localhost:3030/photos')
       } else {
-        const response = await fetch(`http://localhost:3030/${album}/photos`)
-        const data = await response.json()
-        data.forEach((photo: any) => {
-          photo.albums = photo.albums.map((album: Album) => album.id)
-        })
-        photos.value = data
+        await fetch(`http://localhost:3030/${album}/photos`)
       }
     } catch (err) {
       console.error(err)
@@ -32,8 +32,7 @@ export const usePhotosStore = defineStore('photos', () => {
 
   const loadAlbums = async () => {
     try {
-      const response = await fetch('http://localhost:3030/albums')
-      albums.value = await response.json()
+      await fetch('http://localhost:3030/albums')
     } catch (err) {
       console.error(err)
     }
@@ -41,15 +40,13 @@ export const usePhotosStore = defineStore('photos', () => {
 
   const addAlbum = async (name: string) => {
     try {
-      const response = await fetch('http://localhost:3030/album', {
+      await fetch('http://localhost:3030/album', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name
         })
       })
-      const data = await response.json()
-      console.log(data)
     } catch (err) {
       console.error(err)
     }
@@ -68,7 +65,7 @@ export const usePhotosStore = defineStore('photos', () => {
       const data = await res1.json()
       console.log('Cloudinary upload:', data)
 
-      const res2 = await fetch('http://localhost:3030/photo', {
+      await fetch('http://localhost:3030/photo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -78,8 +75,6 @@ export const usePhotosStore = defineStore('photos', () => {
           cloudinaryLink: data.url
         })
       })
-      const data2 = await res2.json()
-      console.log('DB upload:', data2)
     } catch (err) {
       console.log(err)
     }
@@ -88,7 +83,7 @@ export const usePhotosStore = defineStore('photos', () => {
 
   const editPhoto = async (id: number, name: string, albums: number[]) => {
     try {
-      const response = await fetch(`http://localhost:3030/photo/${id}`, {
+      await fetch(`http://localhost:3030/photo/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,24 +91,21 @@ export const usePhotosStore = defineStore('photos', () => {
           albums
         })
       })
-      const data = await response.json()
-      console.log(data)
     } catch (err) {
       console.error(err)
     }
+    await loadPhotos()
   }
 
   const editAlbum = async (id: number, name: string) => {
     try {
-      const response = await fetch(`http://localhost:3030/album/${id}`, {
+      await fetch(`http://localhost:3030/album/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name
         })
       })
-      const data = await response.json()
-      console.log(data)
     } catch (err) {
       console.error(err)
     }
@@ -121,28 +113,22 @@ export const usePhotosStore = defineStore('photos', () => {
   }
 
   const deletePhoto = async (id: number) => {
-    console.log('fetching delete')
     try {
-      const response = await fetch(`http://localhost:3030/photo/${id}`, {
+      await fetch(`http://localhost:3030/photo/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       })
-      const data = await response.json()
-      console.log(data)
     } catch (err) {
       console.error(err)
     }
     await loadPhotos()
   }
   const deleteAlbum = async (id: number) => {
-    console.log('fetching delete')
     try {
-      const response = await fetch(`http://localhost:3030/album/${id}`, {
+      await fetch(`http://localhost:3030/album/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       })
-      const data = await response.json()
-      console.log(data)
     } catch (err) {
       console.error(err)
     }
@@ -159,6 +145,8 @@ export const usePhotosStore = defineStore('photos', () => {
     addAlbum,
     albums,
     deleteAlbum,
-    editAlbum
+    editAlbum,
+    setAlbums,
+    setPhotos
   }
 })

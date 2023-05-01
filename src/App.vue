@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import SideBar from '@/components/SideBar.vue'
+import { useWebSocketStore } from '@/stores/ws'
 
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 
 const route = useRoute()
 const routeName = computed(() => route.name)
+
+onBeforeMount(() => {
+  useWebSocketStore().connect()
+})
+
 </script>
 
 <template>

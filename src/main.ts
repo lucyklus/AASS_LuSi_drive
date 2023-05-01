@@ -15,25 +15,24 @@ const vuetify = createVuetify({
     defaultSet: 'mdi',
     aliases,
     sets: {
-      mdi,
+      mdi
     }
   },
-  theme: { 
+  theme: {
     defaultTheme: 'dark',
     themes: {
       dark: {
-        colors:{
-          primary: '#00ffe1',
+        colors: {
+          primary: '#00ffe1'
         }
       }
     }
   },
   components,
-  directives,
+  directives
 })
 
 import './assets/main.css'
-
 const app = createApp(App).use(vuetify)
 
 app.use(createPinia())
