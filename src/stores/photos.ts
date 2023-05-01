@@ -7,10 +7,6 @@ export const usePhotosStore = defineStore('photos', () => {
 
   const albums = ref<Album[]>([])
 
-  const savePhotos = async (_photos: Photo[]) => {
-    photos.value = _photos
-  }
-
   const loadPhotos = async (album?: number | null) => {
     try {
       if (!album && album !== 0) {
@@ -31,6 +27,7 @@ export const usePhotosStore = defineStore('photos', () => {
     } catch (err) {
       console.error(err)
     }
+    console.log(photos.value)
   }
 
   const loadAlbums = async () => {
@@ -52,38 +49,41 @@ export const usePhotosStore = defineStore('photos', () => {
         })
       })
       const data = await response.json()
+      console.log(data)
     } catch (err) {
       console.error(err)
     }
     await loadAlbums()
   }
 
-  const uploadedFile = ref<File | null>(null)
-
-  const setUploadedFile = (file: File | null) => {
-    uploadedFile.value = file
-  }
-
   const uploadPhoto = async (selectedFile: File) => {
-    setUploadedFile(selectedFile)
+    const formData = new FormData()
+    formData.append('upload_preset', 'lusi_drive')
+    formData.append('file', selectedFile)
     try {
-      await fetch(
-        'http://localhost:8080/engine-rest/process-definition/photo-uploading:1:7913add7-dfb9-11ed-82e5-0242ac110002/start',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            variables: {
-              name: {
-                value: selectedFile.name
-              }
-            }
-          })
-        }
-      )
+      const res1 = await fetch(`https://api.cloudinary.com/v1_1/lusidrive/upload`, {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res1.json()
+      console.log('Cloudinary upload:', data)
+
+      const res2 = await fetch('http://localhost:3030/photo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: selectedFile.name,
+          cloudinaryLink: data.url
+        })
+      })
+      const data2 = await res2.json()
+      console.log('DB upload:', data2)
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
+    await loadPhotos()
   }
 
   const editPhoto = async (id: number, name: string, albums: number[]) => {
@@ -97,6 +97,7 @@ export const usePhotosStore = defineStore('photos', () => {
         })
       })
       const data = await response.json()
+      console.log(data)
     } catch (err) {
       console.error(err)
     }
@@ -112,6 +113,7 @@ export const usePhotosStore = defineStore('photos', () => {
         })
       })
       const data = await response.json()
+      console.log(data)
     } catch (err) {
       console.error(err)
     }
@@ -119,24 +121,28 @@ export const usePhotosStore = defineStore('photos', () => {
   }
 
   const deletePhoto = async (id: number) => {
+    console.log('fetching delete')
     try {
       const response = await fetch(`http://localhost:3030/photo/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       })
       const data = await response.json()
+      console.log(data)
     } catch (err) {
       console.error(err)
     }
     await loadPhotos()
   }
   const deleteAlbum = async (id: number) => {
+    console.log('fetching delete')
     try {
       const response = await fetch(`http://localhost:3030/album/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       })
       const data = await response.json()
+      console.log(data)
     } catch (err) {
       console.error(err)
     }
@@ -153,9 +159,6 @@ export const usePhotosStore = defineStore('photos', () => {
     addAlbum,
     albums,
     deleteAlbum,
-    editAlbum,
-    uploadedFile,
-    savePhotos,
-    setUploadedFile
+    editAlbum
   }
 })

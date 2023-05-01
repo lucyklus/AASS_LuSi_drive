@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import MiniPhoto from '@/components/photos/MiniPhoto.vue'
 import { usePhotosStore } from '@/stores/photos'
-import { useWebSocketStore } from '@/stores/ws'
 import type { Photo } from '@/types'
 import { computed, onMounted, ref } from 'vue'
 
 const photosStore = usePhotosStore()
-const wsStore = useWebSocketStore()
 
 const photos = computed<Photo[]>(() => photosStore.photos)
-const wsQuestion = computed(() => wsStore.question)
 
 onMounted(async () => {
   await photosStore.loadAlbums()
@@ -21,11 +18,9 @@ const uploader = ref<HTMLInputElement>()
 const isUploading = ref<boolean>(false)
 
 const onFileSelected = async (payload: Event) => {
-  console.log('onFileSelected')
   const target = payload.target as HTMLInputElement
   const selectedFile = target.files?.item(0) ?? null
   if (!selectedFile) return
-  console.log('selectedFile', selectedFile)  
   isUploading.value = true
   await photosStore.uploadPhoto(selectedFile)
   target.value = ''
@@ -34,18 +29,6 @@ const onFileSelected = async (payload: Event) => {
 </script>
 
 <template>
-  <v-dialog :model-value="wsQuestion !== null">
-    <v-row justify="center">
-      <v-card width="400">
-        <v-card-title class="headline">Question</v-card-title>
-        <v-card-text>{{ wsQuestion }}</v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" text @click="wsStore.approveUpload()"> Yes </v-btn>
-          <v-btn color="primary" text @click="wsStore.rejectUpload()">No</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-row>
-  </v-dialog>
   <v-container>
     <v-row>
       <v-col cols="2" v-for="photo in photos" :key="photo.id">
